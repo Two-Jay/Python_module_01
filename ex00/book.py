@@ -18,5 +18,7 @@ class Book:
         return [recipe for recipe in self.recipes_list if recipe.recipe_type == recipe_type]
     
     def add_recipe(self, recipe : Recipe):
+        if isinstance(recipe, Recipe) == False:
+            raise TypeError("recipe must be a Recipe")
         self.recipes_list.append(recipe)
         self.last_update = datetime.now()
