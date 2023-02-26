@@ -8,6 +8,9 @@ class RecipeType(Enum):
     def __str__(self):
         return self.value
 
+    def __repr__(self):
+        return self.value
+
 class Recipe:
     def __init__(self, name : str, cooking_lvl : int, cooking_time : int, ingredients : list, recipe_type : str, description : str = ""):
         self.name = name
@@ -23,6 +26,5 @@ class Recipe:
     - Description: {self.description}\n\
     - Ingredients: {self.ingredients}"
 
-if __name__ == "__main__":
-    recipe = Recipe("Chocolate Souffle", 4, 60, ["chocolate", "eggs", "butter"], RecipeType.DESSERT, "A delicious chocolate souffle")
-    print(recipe)
+    def __repr__(self):
+        return f"Recipe({self.name}, {self.cooking_lvl}, {self.cooking_time}, {self.ingredients}, {self.recipe_type}, {self.description})"
