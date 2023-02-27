@@ -5,7 +5,6 @@ from abc import ABC
 # ZeroDivisionError : division by zero
 # NotImplementedError : Division of a scalar by a Vector is NOT defined here
 # 
-
 class Vector:
     def __init__(self, elems : list):
         self.values = elems
@@ -19,3 +18,8 @@ class Vector:
 
     def __str__(self) -> str:
         return str(self.values)
+
+    def __add__(self, value : 'Vector'):
+        if self.shape != value.shape:
+            raise NotImplementedError
+        

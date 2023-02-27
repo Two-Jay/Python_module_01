@@ -42,7 +42,6 @@ class test_reference(unittest.TestCase):
     def test_shape_reference_03(self):
         self.assertTupleEqual(Vector([[0.0, 1.0, 2.0, 3.0]]).shape, (1, 4)) 
 
-
 class test_operation(unittest.TestCase):
     def test_add_00(self):
         v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
