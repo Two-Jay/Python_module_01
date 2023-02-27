@@ -16,29 +16,8 @@ def test_divide_call_02():
 def test_divide_call_03():
     v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
     v2 = 2.0 / v1
-    
 
 class test_reference(unittest.TestCase):
-    def test_declare_00(self):
-        test_input = [[1.,2.,3.],]
-        vector = Vector(test_input)
-        self.assertListEqual(vector.get_elem(), test_input)
-
-    def test_declare_01(self):
-        test_input = [[1.,], [2.,], [3.,]]
-        vector = Vector(test_input)
-        self.assertListEqual(vector.get_elem(), test_input)
-
-    def test_dimention_00(self):
-        test_input = [[1.,2.,3.],]
-        vector = Vector(test_input)
-        self.assertTupleEqual(vector.get_dimention(), (1,3))
-
-    def test_dimention_01(self):
-        test_input = [[1.,], [2.,], [3.,]]
-        vector = Vector(test_input)
-        self.assertTupleEqual(vector.get_dimention(), (3,1))
-
     def test_value_reference_00(self):
         test_asnwer = [[1.,2.,3.],]
         self.assertListEqual(Vector([[1.,2.,3.],]).values, test_asnwer)

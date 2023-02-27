@@ -10,12 +10,6 @@ class Vector:
     def __init__(self, elems : list):
         self.values = elems
         self.shape = (len(elems), len(elems[0]))
-        
-    def get_elem(self) -> list:
-        return self.values
-
-    def get_dimention(self) -> tuple:
-        return self.shape
 
     def T(self) -> 'Vector':
         return self
