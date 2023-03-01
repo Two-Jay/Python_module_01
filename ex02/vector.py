@@ -7,14 +7,21 @@ from abc import ABC
 # 
 class Vector:
     def __init__(self, elems : list):
+        if not isinstance(elems, list):
+            raise TypeError
+        if len(elems) == 0 or len(elems[0]) == 0:
+            raise TypeError
         self.values = elems
         self.shape = (len(elems), len(elems[0]))
 
-    def T(self) -> 'Vector':
-        return self
+    def T(self):
+        return Vector([[self.values[j][i] for j in range(self.shape[0])] for i in range(self.shape[1])])
+
+    def dot(self, value : 'Vector'):
+        # return sum([self.values[i][0] * value.values[i][0] for i in range(self.shape[0])])
 
     def __repr__(self):
-        return self.values
+        return f"Vector({self.values})"
 
     def __str__(self) -> str:
         return str(self.values)
@@ -22,4 +29,24 @@ class Vector:
     def __add__(self, value : 'Vector'):
         if self.shape != value.shape:
             raise NotImplementedError
-        
+        return Vector([[self.values[i][j] + value.values[i][j] for j in range(self.shape[1])] for i in range(self.shape[0])])
+
+    def __radd__(self, value : 'Vector'):
+        return self.__add__(value)
+
+    def __sub__(self, value : 'Vector'):
+        if self.shape != value.shape:
+            raise NotImplementedError
+        return Vector([[self.values[i][j] + (value.values[i][j] * -1) for j in range(self.shape[1])] for i in range(self.shape[0])])
+    
+    def __rsub__(self, value : 'Vector'):
+        return self.__sub__(value)
+
+    def __mul__(self, value : int or float):
+        if isinstance(value, int) == False and isinstance(value, float) == False:
+            raise NotImplementedError
+        param = [[self.values[i][j] * value for j in range(self.shape[1])] for i in range(self.shape[0])]
+        return Vector(param)
+
+    def __rmul__(self, value : int or float):
+        return self.__mul__(value)

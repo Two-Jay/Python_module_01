@@ -1,21 +1,41 @@
 import unittest
 from vector import Vector
 
-def test_divide_call_00():
+def divide_call_00():
     v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
     v2 = v1 / 0.0
 
-def test_divide_call_01():
+def divide_call_01():
     v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
     v2 = v1 / 0.0
 
-def test_divide_call_02():
+def divide_call_02():
     v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
     v2 = 2.0 / v1
 
-def test_divide_call_03():
+def divide_call_03():
     v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
     v2 = 2.0 / v1
+
+def type_call_00():
+    v1 = Vector(0.0)
+
+def type_call_01():
+    v1 = Vector([0.0, 1.0, 2.0, 3.0])
+
+def type_call_02():
+    v1 = Vector('hello')
+
+class test_init(unittest.TestCase):
+    def test_type_exception_00(self):
+        with self.assertRaises(TypeError) : type_call_00()
+
+    def test_type_exception_01(self):
+        with self.assertRaises(TypeError) : type_call_01()
+
+    def test_type_exception_02(self):
+        with self.assertRaises(TypeError) : type_call_02()
+
 
 class test_reference(unittest.TestCase):
     def test_value_reference_00(self):
@@ -65,7 +85,7 @@ class test_operation(unittest.TestCase):
         v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
         v2 = Vector([[1.0, 5.0, 4.0, 8.0]])
         v3 = v1 - v2
-        self.assertListEqual(v3.values, [[-1.0, -4.0, 2.0, -5.0]])
+        self.assertListEqual(v3.values, [[-1.0, -4.0, -2.0, -5.0]])
 
     def test_multiply_00(self):
         v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
@@ -78,16 +98,16 @@ class test_operation(unittest.TestCase):
         self.assertListEqual(v2.values, [[0.0, 5.0, 10.0, 15.0]])
 
     def test_divide_exception_00(self):
-        with self.assertRaises(ZeroDivisionError) : test_divide_call_00()
+        with self.assertRaises(ZeroDivisionError) : divide_call_00()
 
     def test_divide_exception_01(self):
-        with self.assertRaises(ZeroDivisionError) : test_divide_call_01()
+        with self.assertRaises(ZeroDivisionError) : divide_call_01()
 
     def test_divide_exception_02(self):
-        with self.assertRaises(NotImplementedError) : test_divide_call_02()
+        with self.assertRaises(NotImplementedError) : divide_call_02()
 
     def test_divide_exception_03(self):
-        with self.assertRaises(NotImplementedError) : test_divide_call_03()
+        with self.assertRaises(NotImplementedError) : divide_call_03()
 
     def test_divide_00(self):
         v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
@@ -112,14 +132,14 @@ class test_operation(unittest.TestCase):
 class test_duck_taping(unittest.TestCase):
 
     def test_repr_00(self):
-        test_answer = [[0.0], [1.0], [2.0], [3.0]]
         v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
-        self.assertListEqual(v1, test_answer)
+        v2 = eval(repr(v1))
+        self.assertListEqual(v1.values, v2.values)
 
     def test_repr_01(self):
-        test_answer = [[0.0, 1.0, 2.0, 3.0]]
-        v2 = Vector([[0.0, 1.0, 2.0, 3.0]])
-        self.assertListEqual(v2, test_answer)
+        v1 = Vector([[0.0, 1.0, 2.0, 3.0]])
+        v2 = eval(repr(v1))
+        self.assertListEqual(v1.values, v2.values)
 
     def test_str_00(self):
         test_answer = str([[0.0], [1.0], [2.0], [3.0]])
@@ -135,13 +155,13 @@ class test_T(unittest.TestCase):
     def test_T_00(self):
         v1 = Vector([[0.0], [1.0], [2.0], [3.0]])
         self.assertTupleEqual(v1.shape, (4, 1))
-        self.assertEqual(v1.T(), Vector([[0.0, 1,0, 2.0, 3.0]]))
+        self.assertListEqual(v1.T().values, Vector([[0.0, 1.0, 2.0, 3.0]]).values)
         self.assertTupleEqual(v1.T().shape, (1, 4))
 
     def test_T_01(self):
         v2 = Vector([[0.0, 1.0, 2.0, 3.0]])
         self.assertTupleEqual(v2.shape, (1, 4))
-        self.assertEqual(v2.T(), Vector([[0.0], [1.0], [2.0], [3.0]]))
+        self.assertListEqual(v2.T().values, Vector([[0.0], [1.0], [2.0], [3.0]]).values)
         self.assertTupleEqual(v2.T().shape, (4, 1))
 
 
