@@ -127,7 +127,8 @@ class test_operation(unittest.TestCase):
     def test_dot_product_01(self):
         v3 = Vector([[1.0, 3.0]])
         v4 = Vector([[2.0, 4.0]])
-        self.assertEqual(v3.dot(v4), 13.0)
+        # self.assertEqual(v3.dot(v4), 13.0)
+        self.assertEqual(v3.dot(v4), 14.0)
 
 class test_duck_taping(unittest.TestCase):
 
