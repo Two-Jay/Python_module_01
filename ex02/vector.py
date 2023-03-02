@@ -7,10 +7,8 @@ from abc import ABC
 # 
 class Vector:
 	def __init__(self, elems : list):
-		if not isinstance(elems, list):
-			raise TypeError
-		if len(elems) == 0 or len(elems[0]) == 0:
-			raise TypeError
+		if not isinstance(elems, list) or not all(isinstance(i, list) for i in elems):
+			raise NotImplementedError
 		self.values = elems
 		self.shape = (len(elems), len(elems[0]))
 
@@ -23,7 +21,6 @@ class Vector:
 			for j in range(self.shape[1]):
 				ret = ret + (self.values[i][j] * value.values[i][j])
 		return ret
-
 
 	def __repr__(self):
 		return f"Vector({self.values})"

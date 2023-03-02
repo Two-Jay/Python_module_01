@@ -28,14 +28,13 @@ def type_call_02():
 
 class test_init(unittest.TestCase):
     def test_type_exception_00(self):
-        with self.assertRaises(TypeError) : type_call_00()
+        with self.assertRaises(NotImplementedError) : type_call_00()
 
     def test_type_exception_01(self):
-        with self.assertRaises(TypeError) : type_call_01()
+        with self.assertRaises(NotImplementedError) : type_call_01()
 
     def test_type_exception_02(self):
-        with self.assertRaises(TypeError) : type_call_02()
-
+        with self.assertRaises(NotImplementedError) : type_call_02()
 
 class test_reference(unittest.TestCase):
     def test_value_reference_00(self):
