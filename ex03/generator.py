@@ -1,29 +1,25 @@
+import sys
 import argparse
 import random
 
-generator_options = {
-    "ordered" : 
-}
-
-class Generator():
-    def __init__(self, text):
+sys.tracebacklimit = 0
 
 def generator(text : str, option=None, sep=' '):
-
-    
     try:
         str(text)
-        
-    except: 
-    splitted = text.split(sep)
-    if option == 'ordered':
-        splitted.sort()
-    elif option == 'shuffle':
-        random.shuffle(splitted)
-    elif option == 'unique':
-        splitted = set(splitted)
-    for i in splitted:
-        yield i
+        splitted = text.split(sep)
+        if option == 'ordered':
+            splitted.sort()
+        elif option == 'shuffle':
+            random.shuffle(splitted)
+        elif option == 'unique':
+            splitted = set(splitted)
+        for i in splitted:
+            yield i
+    except:
+        print("ERROR")
+        return ;
+
 
 def main(args : list) -> None:
     for word in generator(args[0], sep=' '):
