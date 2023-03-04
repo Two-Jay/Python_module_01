@@ -29,6 +29,7 @@ class AccountCorruptionException(Exception):
 
 class Security(metaclass=ABCMeta):
     @abstractmethod
+    @staticmethod
     def inspect(self, account : Account) -> bool:
         pass
 
@@ -83,6 +84,7 @@ class Bank(object):
         # ... Your code  ...
         try:
             self.accounts.append(new_account)
+            
             return True
         except:
             return False
