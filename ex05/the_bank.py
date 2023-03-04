@@ -17,10 +17,18 @@ class Account(object):
         if not isinstance(self.name, str):
             raise AttributeError("Attribute name must be a str object.")
     
-    def transfer(self, amount):
+    def transfer(self, amount : int or float) -> bool:
         self.value += amount
+        return True
 
-    def isEnough(self, amount):
+    def widthrow(self, amount : int or float) -> bool:
+        if Balance_inspector.inspect(self, amount) == True:
+            self.value -= amount
+            return True
+        else:
+            return False
+
+    def isEnough(self, amount : int or float) -> bool:
         return self.value >= amount
 
 class AccountCorruptionException(Exception):
@@ -83,8 +91,8 @@ class Bank(object):
         # it can be appended to the attribute accounts
         # ... Your code  ...
         try:
+            Corrupt_account_inspector.inspect(new_account)
             self.accounts.append(new_account)
-            
             return True
         except:
             return False
@@ -97,6 +105,14 @@ class Bank(object):
             @return   True if success, False if an error occured
         """
         # ... Your code  ...
+        try:
+            Corrupt_account_inspector.inspect(origin)
+            Corrupt_account_inspector.inspect(dest)
+            origin.widthrow(amount)
+            dest.transfer(amount)
+            return True
+        except:
+            return False
 
     def fix_account(self, name):
         """ fix account associated to name if corrupted
@@ -104,3 +120,4 @@ class Bank(object):
             @return  True if success, False if an error occured
         """
         # ... Your code  ...
+        pass
