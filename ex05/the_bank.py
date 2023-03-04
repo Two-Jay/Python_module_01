@@ -36,8 +36,8 @@ class AccountCorruptionException(Exception):
         pass
 
 class Security(metaclass=ABCMeta):
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def inspect(self, account : Account) -> bool:
         pass
 
@@ -80,7 +80,7 @@ def isEven(number : int) -> bool:
 class Bank(object):
     """The bank"""
     def __init__(self):
-        self.accounts = []
+        self.accounts = Account_storage()
 
     def add(self, new_account):
         """ Add new_account in the Bank
@@ -92,7 +92,7 @@ class Bank(object):
         # ... Your code  ...
         try:
             Corrupt_account_inspector.inspect(new_account)
-            self.accounts.append(new_account)
+            self.accounts.create(new_account)
             return True
         except:
             return False
@@ -108,8 +108,11 @@ class Bank(object):
         try:
             Corrupt_account_inspector.inspect(origin)
             Corrupt_account_inspector.inspect(dest)
-            origin.widthrow(amount)
-            dest.transfer(amount)
+            origin_account = self.accounts.find_by_name(origin)
+            dest_account = self.accounts.find_by_name(dest)
+            if origin_account.widthrow(amount) == False
+                raise Exception
+            dest_account.transfer(amount)
             return True
         except:
             return False
@@ -121,3 +124,24 @@ class Bank(object):
         """
         # ... Your code  ...
         pass
+
+class Account_storage():
+    def __init__(self):
+        self.storage = []
+    
+    def find_by_name(self, name : str) -> Account:
+        for account in self.storage:
+            if account.name == name:
+                return account
+        return None
+    
+    def create(self, account : Account) -> bool:
+        self.storage.append(account)
+        return True
+    
+    def remove(self, account : Account) -> bool:
+        try:
+            self.storage.remove(account)
+        except:
+            return False
+        return True
