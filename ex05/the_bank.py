@@ -52,15 +52,7 @@ class Corrupt_account_inspector(Security):
     @classmethod
     def inspect(cls, account: Account) -> bool:
         try:
-            if isEven(len(account.__dict__) % 2) == True:
-                raise AccountCorruptionException
             if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
-                raise AccountCorruptionException
-            if isinstance(account.name, str) == False:
-                raise AccountCorruptionException
-            if isinstance(account.id, int) == False:
-                raise AccountCorruptionException
-            if isinstance(account.value, int) == False and isinstance(account.__dict__['value'], float) == False:
                 raise AccountCorruptionException
             if any((key.startswith("zip") and key.startswith("addr")) == False for key in cls.__dict__.keys()):
                 raise AccountCorruptionException
@@ -71,10 +63,26 @@ class Corrupt_account_inspector(Security):
             return True
         except:
             return False
-    
+
+    @staticmethod
+    def check_attr_type(account : Account):
+        if isinstance(account.name, str) == False:
+            raise AccountCorruptionException
+        if isinstance(account.id, int) == False:
+            raise AccountCorruptionException
+        if isinstance(account.value, int) == False and isinstance(account.value, float) == False:
+            raise AccountCorruptionException
+        return True
+
+    @staticmethod
+    def check_attr_len(account : Account):
+        if isEven(len(account.__dict__) % 2) == True:
+            raise AccountCorruptionException
+        return True
+
 class Balance_inspector(Security):
     @classmethod
-    def inspect(cls, account: Account, amount) -> bool:
+    def inspect(cls, account: Account, amount : int or float) -> bool:
         return account.isEnough(amount)
 
 def isEven(number : int) -> bool:

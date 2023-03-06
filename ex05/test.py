@@ -155,30 +155,21 @@ class test_Right_account_inspector(unittest.TestCase):
             value=1000.0,
             bref='1044618427ff2782f0bbece0abd05f31'
         )
-
-        right_account_inspector = Right_account_inspector()
         
         self.assertIsInstance(ac, Account)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(ac), True)
+        self.assertEqual(Right_account_inspector.inspect(ac), True)
 
     def test_rightcheck_01(self):            
         ac = int(1)
-
-        right_account_inspector = Right_account_inspector()
         
         self.assertIsInstance(ac, int)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(ac), False)
+        self.assertEqual(Right_account_inspector.inspect(ac), False)
 
     def test_rightcheck_02(self):
         ac = str("test")
 
-        right_account_inspector = Right_account_inspector()
-
         self.assertIsInstance(ac, str)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(ac), False)
+        self.assertEqual(Right_account_inspector.inspect(ac), False)
 
     def test_rightcheck_03(self):
         ac = Account(
@@ -187,12 +178,9 @@ class test_Right_account_inspector(unittest.TestCase):
             value=1000.0,
             bref='1044618427ff2782f0bbece0abd05f31'
         )
-
-        right_account_inspector = Right_account_inspector()
         
         self.assertIsInstance(ac, Account)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(str(ac)), False)
+        self.assertEqual(Right_account_inspector.inspect(str(ac)), False)
 
     def test_rightcheck_04(self):
         ac = Account(
@@ -201,12 +189,9 @@ class test_Right_account_inspector(unittest.TestCase):
             value=1000.0,
             bref='1044618427ff2782f0bbece0abd05f31'
         )
-
-        right_account_inspector = Right_account_inspector()
         
         self.assertIsInstance(ac, Account)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(repr(ac)), False)
+        self.assertEqual(Right_account_inspector.inspect(repr(ac)), False)
 
     def test_rightcheck_05(self):
         ac = Account(
@@ -215,14 +200,115 @@ class test_Right_account_inspector(unittest.TestCase):
             value=1000.0,
             bref='1044618427ff2782f0bbece0abd05f31'
         )
-
-        right_account_inspector = Right_account_inspector()
         
         self.assertIsInstance(ac, Account)
-        self.assertIsInstance(right_account_inspector, Right_account_inspector)
-        self.assertEqual(right_account_inspector.inspect(ac.name), False)
+        self.assertEqual(Right_account_inspector.inspect(ac.name), False)
+
+class test_Balance_checker(unittest.TestCase):
+    def test_balance_check_00(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = 300.0
+
+        self.assertIsInstance(ac, Account)
+        self.assertEqual(Balance_inspector.inspect(ac, test_value), True)
+
+    def test_balance_check_01(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = 1500.0
+
+        self.assertIsInstance(ac, Account)
+        self.assertEqual(Balance_inspector.inspect(ac, test_value), False)
+        
+    def test_balance_check_02(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = ac.value
+
+        self.assertIsInstance(ac, Account)
+        self.assertEqual(Balance_inspector.inspect(ac, test_value), True)
+
+    def test_balance_check_03(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = 300
+
+        self.assertIsInstance(ac, Account)
+        self.assertEqual(Balance_inspector.inspect(ac, test_value), True)
+
+    def test_balance_check_04(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = 1500
+
+        self.assertIsInstance(ac, Account)
+        self.assertEqual(Balance_inspector.inspect(ac, test_value), False)
+        
+    def test_balance_check_05(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        test_value = "hello"
+
+        self.assertIsInstance(ac, Account)
+        self.assertRaises(TypeError, lambda: Balance_inspector.inspect(ac, test_value))
+
+class test_Corrupt_account_inspector(unittest.TestCase):
+    def test_corrupt_check_00(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_type(ac), True)
+        
+    def test_corrupt_check_01(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        ac.value = "1000.0"
+
+        self.assertRaises(AccountCorruptionException, lambda: Corrupt_account_inspector.check_attr_type(ac))
 
 
+        
+    
 
 if __name__ == '__main__':
     unittest.main()
