@@ -36,31 +36,33 @@ class AccountCorruptionException(Exception):
         pass
 
 class Security(metaclass=ABCMeta):
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def inspect(self, account : Account) -> bool:
+    def inspect(cls, account : Account) -> bool:
         pass
 
 class Right_account_inspector(Security):
-    def inspect(self, account: Account) -> bool:
+    @classmethod
+    def inspect(cls, account: Account) -> bool:
         return isinstance(account, Account)
 
 class Corrupt_account_inspector(Security):
     MANDATORY_ATTRS = ['name', 'id', 'value']
 
-    def inspect(self, account: Account) -> bool:
+    @classmethod
+    def inspect(cls, account: Account) -> bool:
         try:
             if isEven(len(account.__dict__) % 2) == True:
                 raise AccountCorruptionException
-            if all(account.__dict__.__contains__(i) for i in self.MANDATORY_ATTRS) == False:
+            if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
                 raise AccountCorruptionException
-            if type(account.__dict__['name']) != str:
+            if isinstance(account.name, str) == False:
                 raise AccountCorruptionException
-            if type(account.__dict__['id']) != int:
+            if isinstance(account.id, int) == False:
                 raise AccountCorruptionException
-            if type(account.__dict__['value']) != int and type(account.__dict__['value']) != float:
+            if isinstance(account.value, int) == False and isinstance(account.__dict__['value'], float) == False:
                 raise AccountCorruptionException
-            if any((key.startswith("zip") and key.startswith("addr")) == False for key in self.__dict__.keys()):
+            if any((key.startswith("zip") and key.startswith("addr")) == False for key in cls.__dict__.keys()):
                 raise AccountCorruptionException
             for key, value in account.__dict__.items():
                 print(f"{key} - {value}")
@@ -71,7 +73,8 @@ class Corrupt_account_inspector(Security):
             return False
     
 class Balance_inspector(Security):
-    def inspect(self, account: Account, amount) -> bool:
+    @classmethod
+    def inspect(cls, account: Account, amount) -> bool:
         return account.isEnough(amount)
 
 def isEven(number : int) -> bool:
@@ -110,7 +113,7 @@ class Bank(object):
             Corrupt_account_inspector.inspect(dest)
             origin_account = self.accounts.find_by_name(origin)
             dest_account = self.accounts.find_by_name(dest)
-            if origin_account.widthrow(amount) == False
+            if origin_account.widthrow(amount) == False:
                 raise Exception
             dest_account.transfer(amount)
             return True
@@ -142,6 +145,6 @@ class Account_storage():
     def remove(self, account : Account) -> bool:
         try:
             self.storage.remove(account)
+            return True
         except:
             return False
-        return True
