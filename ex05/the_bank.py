@@ -9,6 +9,13 @@ from abc import ABCMeta, abstractmethod
 def isEven(number : int) -> bool:
     return number % 2 == 0
 
+def isFloatNumeric(nbr : str) -> bool:
+    try:
+        float(nbr)
+        return True
+    except ValueError:
+        return False
+
 # * class Account
 # ---------------------------------------------------------------------------------
 class Account(object):
@@ -98,7 +105,7 @@ class Corrupt_account_inspector(Security):
     
     @classmethod
     def check_mandatory_attr(cls, account : Account):
-        if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
+        if any(account.__dict__.__contains__(i) == False for i in cls.MANDATORY_ATTRS) == True:
             raise AccountCorruptionException("Mandatory attributes are missing.")
         return True
     
@@ -119,43 +126,43 @@ class Balance_inspector(Security):
 class Account_Fixer(object):
     @classmethod
     def fix(cls, account : Account):
+        if Corrupt_account_inspector.inspect(account) == True:
+            return False
         fixers = [cls.fix_mandatory_attr, cls.fix_attr_type, cls.fix_attr_key_validity, cls.fix_attr_name, cls.fix_attr_len]
-        return True if all(fix(account) == True for fix in fixers) == True else False
+        for fixer in fixers:
+            fixer(account)
+        return True
 
     @classmethod
     def fix_attr_key_validity(cls, account : Account):
         try:
             Corrupt_account_inspector.check_attr_key_validity(account)
-            return False
         except:
             for key, value in account.__dict__.items():
                 if key.startswith("b") == True:
-                    del account.__dict__[key]
+                    tmp = account.__dict__[key]
+                    account.__dict__.pop(key)
+                    account.__dict__["fixed_" + key[1:]] = tmp
             return True
     
     @classmethod
     def fix_attr_name(cls, account : Account):
         try:
             Corrupt_account_inspector.check_attr_name(account)
-            return False
         except:
             account.__dict__['addr'] = 'unknown'
-            return True
 
     @classmethod
     def fix_attr_len(cls, account : Account):
         try:
             Corrupt_account_inspector.check_attr_len(account)
-            return False
         except:
             account.__dict__['fixed'] = 'unknown'
-            return True
     
     @classmethod
     def fix_mandatory_attr(cls, account : Account):
         try:
             Corrupt_account_inspector.check_mandatory_attr(account)
-            return False
         except:
             if account.__dict__.__contains__('name') == False:
                 account.__dict__['name'] = 'unknown'
@@ -163,14 +170,12 @@ class Account_Fixer(object):
                 account.__dict__['id'] = Account.ID_COUNT
                 Account.ID_COUNT += 1
             if account.__dict__.__contains__('value') == False:
-                account.__dict__['value'] = 'unknown'
-            return True
+                account.__dict__['value'] = float(0.0)
     
     @classmethod
     def fix_attr_type(cls, account : Account):
         try:
             Corrupt_account_inspector.check_attr_type(account)
-            return False
         except:
             if isinstance(account.name, str) == False:
                 account.__dict__.pop('name')
@@ -179,14 +184,12 @@ class Account_Fixer(object):
                 account.__dict__.pop('id')
                 account.__dict__['id'] = Account.ID_COUNT
                 Account.ID_COUNT += 1
-            if isinstance(account.value, str) == True and account.value.isnumeric() == True:
-                tmp = account.value
-                account.__dict__.pop('value')
-                account.__dict__['value'] = float(tmp)
             if isinstance(account.value, int) == False and isinstance(account.value, float) == False:
-                account.__dict__.pop('value')
-                account.__dict__['value'] = 0.0
-            return True
+                tmp = account.__dict__.pop('value')
+                if tmp.isnumeric() == True or isFloatNumeric(tmp) == True:
+                    account.__dict__['value'] = float(tmp)
+                else:
+                    account.__dict__['value'] = float(0.0)
 
 # * class Bank
 # ---------------------------------------------------------------------------------

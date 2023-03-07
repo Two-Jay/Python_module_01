@@ -737,11 +737,115 @@ class Test_Corruption_Check(unittest.TestCase):
         ac.__dict__['noname'] = ac.__dict__.pop('zip_code')
         self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
 
-class test_Bank(unittest.TestCase):
+class test_Account_fixer(unittest.TestCase):
+    def test_fix_00(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+            b_addr='123 Main St'
+        )
 
-    def test_bank_00(self):
-        bank = Bank()
+        self.assertEqual(Account_Fixer.fix(ac), True)
 
+    def test_fix_01(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.zip_code
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.addr, 'unknown')
+
+    def test_fix_02(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.value
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.value, 0.0)
+
+    def test_fix_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.name
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.name, 'unknown')
+
+    def test_fix_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.id
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.id, Account.ID_COUNT - 1)
+
+    def test_fix_05(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        ac.value = '1000.0'
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.value, 1000.0)
+
+    def test_fix_06(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        ac.value = '1000'
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.value, 1000.0)
+
+    def test_fix_07(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        ac.value = 'hello'
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.value, 0.0)
+
+    def test_fix_08(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.fixed, 'unknown')
+        self.assertEqual(isEven(len(ac.__dict__)), False)
+
+    def test_fix_09(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('value')
+        self.assertEqual(Account_Fixer.fix(ac), True)
+        self.assertEqual(ac.value, 0.0)
 
 class test_subject_cases(unittest.TestCase):
 
