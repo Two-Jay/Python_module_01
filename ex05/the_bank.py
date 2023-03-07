@@ -52,20 +52,17 @@ class Corrupt_account_inspector(Security):
     @classmethod
     def inspect(cls, account: Account) -> bool:
         try:
-            if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
-                raise AccountCorruptionException
-            if any((key.startswith("zip") and key.startswith("addr")) == False for key in cls.__dict__.keys()):
-                raise AccountCorruptionException
-            for key, value in account.__dict__.items():
-                print(f"{key} - {value}")
-                if key.startswith("b") == True:
-                    raise AccountCorruptionException
+            cls.check_attr_type(account)
+            cls.check_attr_len(account)
+            cls.check_attr_name(account)
+            cls.check_mandatory_attr(account)
+            cls.check_attr_value(account)
             return True
         except:
             return False
 
-    @staticmethod
-    def check_attr_type(account : Account):
+    @classmethod
+    def check_attr_type(cls, account : Account):
         if isinstance(account.name, str) == False:
             raise AccountCorruptionException
         if isinstance(account.id, int) == False:
@@ -74,10 +71,30 @@ class Corrupt_account_inspector(Security):
             raise AccountCorruptionException
         return True
 
-    @staticmethod
-    def check_attr_len(account : Account):
+    @classmethod
+    def check_attr_len(cls, account : Account):
         if isEven(len(account.__dict__) % 2) == True:
             raise AccountCorruptionException
+        return True
+    
+    @classmethod
+    def check_attr_name(cls, account : Account):
+        if any((key.startswith("zip") and key.startswith("addr")) == False for key in cls.__dict__.keys()):
+            raise AccountCorruptionException
+        return True
+    
+    @classmethod
+    def check_mandatory_attr(cls, account : Account):
+        if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
+            raise AccountCorruptionException
+        return True
+    
+    @classmethod
+    def check_attr_value(cls, account : Account):
+        for key, value in account.__dict__.items():
+            print(f"{key} - {value}")
+            if key.startswith("b") == True:
+                raise AccountCorruptionException
         return True
 
 class Balance_inspector(Security):
