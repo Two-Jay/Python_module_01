@@ -737,5 +737,214 @@ class Test_Corruption_Check(unittest.TestCase):
         ac.__dict__['noname'] = ac.__dict__.pop('zip_code')
         self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
 
+class test_Bank(unittest.TestCase):
+
+    def test_bank_00(self):
+        bank = Bank()
+
+
+class test_subject_cases(unittest.TestCase):
+
+    def test_00(self):
+        bank = Bank()
+
+        ac0 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+        ac1 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None,
+            other='This is the vice president of the corporation'
+        )
+
+        corruption_check_ac00 = Corrupt_account_inspector.inspect(ac0)
+        corruption_check_ac01 = Corrupt_account_inspector.inspect(ac1)
+
+        self.assertEqual(corruption_check_ac00, False)
+        self.assertEqual(corruption_check_ac01, True)
+
+        self.assertEqual(bank.add(ac0), False)
+        self.assertEqual(bank.add(ac1), True)
+
+    
+    def test_01(self):
+        bank = Bank()
+
+        ac0 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            ref='1044618427ff2782f0bbece0abd05f31'
+        )
+        ac1 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None
+        )
+
+        corruption_check_ac00 = Corrupt_account_inspector.inspect(ac0)
+        corruption_check_ac01 = Corrupt_account_inspector.inspect(ac1)
+
+        self.assertEqual(corruption_check_ac00, True)
+        self.assertEqual(corruption_check_ac01, False)
+
+        self.assertEqual(bank.add(ac0), True)
+        self.assertEqual(bank.add(ac1), False)
+
+    def test_02(self):
+        bank = Bank()
+
+        ac0 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        ) # len = 5
+        ac1 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None,
+            other='This is the vice president of the corporation'
+        ) # len = 7
+
+        corruption_check_ac00 = Corrupt_account_inspector.inspect(ac0)
+        corruption_check_ac01 = Corrupt_account_inspector.inspect(ac1)
+
+        self.assertEqual(corruption_check_ac00, False)
+        self.assertEqual(corruption_check_ac01, True)
+
+        self.assertEqual(bank.add(ac0), False)
+        self.assertEqual(bank.add(ac1), True)
+
+        self.assertEqual(bank.transfer('William John', 'Smith Jane', 1000.0), False)
+
+        self.assertEqual(bank.find_account('William John'), ac1)
+        self.assertEqual(bank.find_account('Smith Jane'), None)
+
+
+    def test_03(self):
+        bank = Bank()
+        acc_valid_1 = Account('Sherlock Holmes',
+                            zip='NW1 6XE',
+                            addr='221B Baker street',
+                            value=1000.0)
+        acc_invalid_2 = Account('James Watson',
+                            zip='NW1 6XE',
+                            addr='221B Baker street',
+                            value=25000.0,
+                            info=None)
+        acc_valid_2 = Account("Douglass",
+                                zip='42',
+                                addr='boulevard bessieres',
+                                value=42)
+        acc_valid_3 = Account("Adam",
+                                value=42,
+                                zip='0',
+                                addr='Somewhere')
+        acc_valid_4 = Account("Bender Bending RodrÃ­guez",
+                                zip='1',
+                                addr='Mexico',
+                                value=42)
+        acc_valid_5 = Account("Charlotte",
+                                zip='2',
+                                addr='Somewhere in the Milky Way',
+                                value=42)
+        acc_valid_6 = Account("Edouard",
+                                zip='3',
+                                addr='France',
+                                value=42)
+
+        self.assertEqual(bank.add(acc_valid_1), True)
+        self.assertEqual(bank.add(acc_invalid_2), False)
+        self.assertEqual(bank.add(acc_valid_2), True)
+        self.assertEqual(bank.add(acc_valid_3), True)
+        self.assertEqual(bank.add(acc_valid_4), True)
+        self.assertEqual(bank.add(acc_valid_5), True)
+        self.assertEqual(bank.add(acc_valid_6), True)
+
+    def test_04(self):
+        bank = Bank()
+
+        ac0 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            ref='1044618427ff2782f0bbece0abd05f31'
+        ) # len = 5
+        ac1 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None,
+            other='This is the vice president of the corporation'
+        ) # len = 7
+
+        corruption_check_ac00 = Corrupt_account_inspector.inspect(ac0)
+        corruption_check_ac01 = Corrupt_account_inspector.inspect(ac1)
+
+        self.assertEqual(corruption_check_ac00, True)
+        self.assertEqual(corruption_check_ac01, True)
+
+        bank.add(ac0)
+        bank.add(ac1)
+
+        self.assertEqual(bank.transfer('William John', 'Smith Jane', 1000.0), True)
+        self.assertEqual(bank.find_account('William John').value, 5460.0)
+        self.assertEqual(bank.find_account('Smith Jane').value, 2000.0)
+
+    def test_05(self):
+        bank = Bank()
+
+        ac0 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            ref='1044618427ff2782f0bbece0abd05f31'
+        ) # len = 5
+        ac1 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None,
+            other='This is the vice president of the corporation'
+        ) # len = 7
+
+        corruption_check_ac00 = Corrupt_account_inspector.inspect(ac0)
+        corruption_check_ac01 = Corrupt_account_inspector.inspect(ac1)
+
+        self.assertEqual(corruption_check_ac00, True)
+        self.assertEqual(corruption_check_ac01, True)
+
+        bank.add(ac0)
+        bank.add(ac1)
+
+        self.assertEqual(bank.find_account('Smith Jane'), ac0)
+        self.assertEqual(bank.find_account('William John'), ac1)
+
+        tmp = bank.find_account('William John').__dict__.pop('value')
+        corruption_check = Corrupt_account_inspector.inspect(bank.find_account('William John'))
+
+        self.assertEqual(corruption_check, False)
+
+        bank.fix_account('William John')
+        target = bank.find_account('William John')
+        corruption_check = Corrupt_account_inspector.inspect(target)
+
+        self.assertEqual(corruption_check, True)
+
+
+
 if __name__ == '__main__':
     unittest.main()

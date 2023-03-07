@@ -1,5 +1,16 @@
+
+# * import
+# ---------------------------------------------------------------------------------
 from abc import ABCMeta, abstractmethod
 
+
+# * utils
+# ---------------------------------------------------------------------------------
+def isEven(number : int) -> bool:
+    return number % 2 == 0
+
+# * class Account
+# ---------------------------------------------------------------------------------
 class Account(object):
     ID_COUNT = 1
 
@@ -31,10 +42,14 @@ class Account(object):
     def isEnough(self, amount : int or float) -> bool:
         return self.value >= amount
 
+# * class AccountCorruptionException
+# ---------------------------------------------------------------------------------
 class AccountCorruptionException(Exception):
-    def __init__(self):
-        pass
+    def __init__(self, message):
+        self.message = message
 
+# * Security classes
+# ---------------------------------------------------------------------------------
 class Security(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
@@ -61,17 +76,17 @@ class Corrupt_account_inspector(Security):
     @classmethod
     def check_attr_type(cls, account : Account):
         if isinstance(account.name, str) == False:
-            raise AccountCorruptionException
+            raise AccountCorruptionException("Attribute name must be a str object.")
         if isinstance(account.id, int) == False:
-            raise AccountCorruptionException
+            raise AccountCorruptionException("Attribute id must be an int object.")
         if isinstance(account.value, int) == False and isinstance(account.value, float) == False:
-            raise AccountCorruptionException
+            raise AccountCorruptionException("Attribute value must be an int or float object.")
         return True
 
     @classmethod
     def check_attr_len(cls, account : Account):
         if isEven(len(account.__dict__) % 2) == True:
-            raise AccountCorruptionException
+            raise AccountCorruptionException("Attribute length is not even.")
         return True
     
     @classmethod
@@ -79,19 +94,19 @@ class Corrupt_account_inspector(Security):
         for key in account.__dict__.keys():
             if key.startswith("zip") == True or key.startswith('addr') == True:
                 return True
-        raise AccountCorruptionException
+        raise AccountCorruptionException("Attribute must contain zip or addr.")
     
     @classmethod
     def check_mandatory_attr(cls, account : Account):
         if all(account.__dict__.__contains__(i) for i in cls.MANDATORY_ATTRS) == False:
-            raise AccountCorruptionException
+            raise AccountCorruptionException("Mandatory attributes are missing.")
         return True
     
     @classmethod
     def check_attr_key_validity(cls, account : Account):
         for key, value in account.__dict__.items():
             if key.startswith("b") == True:
-                raise AccountCorruptionException
+                raise AccountCorruptionException("Attribute key is invalid.")
         return True
 
 class Balance_inspector(Security):
@@ -99,9 +114,82 @@ class Balance_inspector(Security):
     def inspect(cls, account: Account, amount : int or float) -> bool:
         return account.isEnough(amount)
 
-def isEven(number : int) -> bool:
-    return number % 2 == 0
+# * class Account_Fixer
+# ---------------------------------------------------------------------------------
+class Account_Fixer(object):
+    @classmethod
+    def fix(cls, account : Account):
+        fixers = [cls.fix_mandatory_attr, cls.fix_attr_type, cls.fix_attr_key_validity, cls.fix_attr_name, cls.fix_attr_len]
+        return True if all(fix(account) == True for fix in fixers) == True else False
 
+    @classmethod
+    def fix_attr_key_validity(cls, account : Account):
+        try:
+            Corrupt_account_inspector.check_attr_key_validity(account)
+            return False
+        except:
+            for key, value in account.__dict__.items():
+                if key.startswith("b") == True:
+                    del account.__dict__[key]
+            return True
+    
+    @classmethod
+    def fix_attr_name(cls, account : Account):
+        try:
+            Corrupt_account_inspector.check_attr_name(account)
+            return False
+        except:
+            account.__dict__['addr'] = 'unknown'
+            return True
+
+    @classmethod
+    def fix_attr_len(cls, account : Account):
+        try:
+            Corrupt_account_inspector.check_attr_len(account)
+            return False
+        except:
+            account.__dict__['fixed'] = 'unknown'
+            return True
+    
+    @classmethod
+    def fix_mandatory_attr(cls, account : Account):
+        try:
+            Corrupt_account_inspector.check_mandatory_attr(account)
+            return False
+        except:
+            if account.__dict__.__contains__('name') == False:
+                account.__dict__['name'] = 'unknown'
+            if account.__dict__.__contains__('id') == False:
+                account.__dict__['id'] = Account.ID_COUNT
+                Account.ID_COUNT += 1
+            if account.__dict__.__contains__('value') == False:
+                account.__dict__['value'] = 'unknown'
+            return True
+    
+    @classmethod
+    def fix_attr_type(cls, account : Account):
+        try:
+            Corrupt_account_inspector.check_attr_type(account)
+            return False
+        except:
+            if isinstance(account.name, str) == False:
+                account.__dict__.pop('name')
+                account.__dict__['name'] = 'unknown'
+            if isinstance(account.id, int) == False:
+                account.__dict__.pop('id')
+                account.__dict__['id'] = Account.ID_COUNT
+                Account.ID_COUNT += 1
+            if isinstance(account.value, str) == True and account.value.isnumeric() == True:
+                tmp = account.value
+                account.__dict__.pop('value')
+                account.__dict__['value'] = float(tmp)
+            if isinstance(account.value, int) == False and isinstance(account.value, float) == False:
+                account.__dict__.pop('value')
+                account.__dict__['value'] = 0.0
+            return True
+
+# * class Bank
+# ---------------------------------------------------------------------------------
 class Bank(object):
     """The bank"""
     def __init__(self):
@@ -114,12 +202,10 @@ class Bank(object):
         """
         # test if new_account is an Account() instance and if
         # it can be appended to the attribute accounts
-        # ... Your code  ...
-        try:
-            Corrupt_account_inspector.inspect(new_account)
+        if Corrupt_account_inspector.inspect(new_account) == True:
             self.accounts.create(new_account)
             return True
-        except:
+        else:
             return False
 
     def transfer(self, origin, dest, amount):
@@ -129,44 +215,68 @@ class Bank(object):
             @amount:  float(amount) amount to transfer
             @return   True if success, False if an error occured
         """
-        # ... Your code  ...
-        try:
-            Corrupt_account_inspector.inspect(origin)
-            Corrupt_account_inspector.inspect(dest)
-            origin_account = self.accounts.find_by_name(origin)
-            dest_account = self.accounts.find_by_name(dest)
-            if origin_account.widthrow(amount) == False:
-                raise Exception
-            dest_account.transfer(amount)
-            return True
-        except:
+        check_arg_type_list = [isinstance(origin, str), isinstance(dest, str), isinstance(amount, int) or isinstance(amount, float)]
+        if all(check_arg_type_list) == False:
             return False
 
-    def fix_account(self, name):
-        """ fix account associated to name if corrupted
-            @name:   str(name) of the account
-            @return  True if success, False if an error occured
-        """
-        # ... Your code  ...
-        pass
+        origin_account = self.accounts.find_by_name(origin)
+        dest_account = self.accounts.find_by_name(dest)
+        if origin_account == None or dest_account == None:
+            return False
+        
+        if Corrupt_account_inspector.inspect(origin_account) == False \
+            or Corrupt_account_inspector.inspect(dest_account) == False:
+            return False
 
+        if Balance_inspector.inspect(origin_account, amount) == False:
+            return False
+        
+        origin_account.widthrow(amount)
+        dest_account.transfer(amount)
+        return True
+
+    def fix_account(self, name):
+        """ Fix the account name
+            @name:    str(name) of the account to fix
+            @return   True if success, False if an error occured
+        """
+        if isinstance(name, str) == False:
+            return False
+        
+        found_account = self.accounts.find_by_name(name)
+        if found_account == None:
+            return False
+        if Corrupt_account_inspector.inspect(found_account) == True:
+            return True
+        Account_Fixer.fix(found_account)
+        return True
+
+    def remove(self, name):
+        if self.accounts.remove(self.accounts.find_by_name(name)) == True:
+            return True
+        return False
+    
+    def find_account(self, name):
+        return self.accounts.find_by_name(name)
+        
+    def print(self):
+        for account in self.accounts.storage:
+            print(account.__dict__)
+
+# * class Account_storage
+# ---------------------------------------------------------------------------------
 class Account_storage():
     def __init__(self):
-        self.storage = []
+        self.storage = {}
     
     def find_by_name(self, name : str) -> Account:
-        for account in self.storage:
-            if account.name == name:
-                return account
-        return None
+        return self.storage.get(name)
     
     def create(self, account : Account) -> bool:
-        self.storage.append(account)
+        self.storage[account.name] = account
         return True
     
     def remove(self, account : Account) -> bool:
-        try:
-            self.storage.remove(account)
-            return True
-        except:
+        if self.storage.pop(account.name) == None:
             return False
+        return True

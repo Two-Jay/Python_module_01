@@ -16,6 +16,8 @@ if __name__ == "__main__":
         info=None
     ))
 
+    bank.print()
+
     if bank.transfer('William John', 'Smith Jane', 1000.0) is False:
         print('Failed')
 
@@ -26,3 +28,4 @@ if __name__ == "__main__":
         print('Failed')
     else:
         print('Success')
+# should print Failed then Success
