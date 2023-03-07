@@ -279,12 +279,13 @@ class test_Balance_checker(unittest.TestCase):
         )
 
         test_value = "hello"
+        test_func = lambda: Balance_inspector.inspect(ac, test_value)
 
         self.assertIsInstance(ac, Account)
-        self.assertRaises(TypeError, lambda: Balance_inspector.inspect(ac, test_value))
+        self.assertRaises(TypeError, test_func)
 
-class test_Corrupt_account_inspector(unittest.TestCase):
-    def test_corrupt_check_00(self):
+class test_Corrupt_account_inspector_method(unittest.TestCase):
+    def test_corrupt_check_attr_type_00(self):
         ac = Account(
             'Smith Jane',
             zip='911-745',
@@ -294,7 +295,7 @@ class test_Corrupt_account_inspector(unittest.TestCase):
 
         self.assertEqual(Corrupt_account_inspector.check_attr_type(ac), True)
         
-    def test_corrupt_check_01(self):
+    def test_corrupt_check_attr_type_01(self):
         ac = Account(
             'Smith Jane',
             zip='911-745',
@@ -303,12 +304,438 @@ class test_Corrupt_account_inspector(unittest.TestCase):
         )
 
         ac.value = "1000.0"
+        test_func = lambda: Corrupt_account_inspector.check_attr_type(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
 
-        self.assertRaises(AccountCorruptionException, lambda: Corrupt_account_inspector.check_attr_type(ac))
+    def test_corrupt_check_attr_type_02(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
 
-
-        
+        ac.name = 1
+        test_func = lambda: Corrupt_account_inspector.check_attr_type(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
     
+    def test_corrupt_check_attr_type_03(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        ac.id = "1"
+        test_func = lambda: Corrupt_account_inspector.check_attr_type(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_type_04(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        ac.zip = 911745
+        self.assertEqual(Corrupt_account_inspector.check_attr_type(ac), True)
+
+    def test_corrupt_check_attr_len_00(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            bref='1044618427ff2782f0bbece0abd05f31'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_len(ac), True)
+
+    def test_corrupt_check_attr_len_01(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+        )
+
+        test_func = lambda: Corrupt_account_inspector.check_attr_len(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_len_02(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_len(ac), True)
+
+    def test_corrupt_check_attr_len_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        del ac.value
+        test_func = lambda: Corrupt_account_inspector.check_attr_len(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_len_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        del ac.id
+        del ac.name
+
+        test_func = lambda: Corrupt_account_inspector.check_attr_len(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_len_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        del ac.id
+        del ac.name
+        del ac.value
+
+        test_func = lambda: Corrupt_account_inspector.check_attr_len(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_00(self):
+        ac = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_name(ac), True)
+
+    def test_corrupt_check_attr_name_01(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            address='123 Main St'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_name(ac), True)
+
+    def test_corrupt_check_attr_name_02(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            address='123 Main St'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_name(ac), True)
+
+    def test_corrupt_check_attr_name_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_name(ac), True)
+
+    def test_corrupt_check_attr_name_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+            address='123 Main St'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_name(ac), True)
+
+    def test_corrupt_check_attr_name_05(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_06(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            address='123 Main St'
+        )
+
+        del ac.address
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_07(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        del ac.zip_code
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_08(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip='911-745',
+        )
+
+        del ac.zip
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_09(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            addr='123 Main St',
+        )
+
+        del ac.addr
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_name_10(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip='911-745',
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('zip')
+        test_func = lambda: Corrupt_account_inspector.check_attr_name(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_00(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+    def test_corrupt_check_mandatory_attr_01(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            address='123 Main St'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+    def test_corrupt_check_mandatory_attr_02(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        del ac.value
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        del ac.name
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        del ac.id
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        ac.__dict__['noname'] = ac.__dict__.pop('value')
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_05(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        ac.__dict__['noname'] = ac.__dict__.pop('name')
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_mandatory_attr_06(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_mandatory_attr(ac), True)
+
+        ac.__dict__['noname'] = ac.__dict__.pop('id')
+
+        test_func = lambda: Corrupt_account_inspector.check_mandatory_attr(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+    def test_corrupt_check_attr_key_validity(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.check_attr_key_validity(ac), True)
+
+    def test_corrupt_check_attr_key_validity_01(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+            baddr='123 Main St'
+        )
+
+        test_func = lambda: Corrupt_account_inspector.check_attr_key_validity(ac)
+        self.assertRaises(AccountCorruptionException, test_func)
+
+class Test_Corruption_Check(unittest.TestCase):
+
+    def test_corrupt_check_00(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+            addr='123 Main St'
+        )
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), True)
+
+    def test_corrupt_check_01(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.zip_code
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_02(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.value
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_03(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.name
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_04(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        del ac.id
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_05(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+            b_addr='123 Main St'
+        )
+
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_06(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('value')
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_07(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('name')
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_08(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('id')
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
+
+    def test_corrupt_check_09(self):
+        ac = Account(
+            'Smith Jane',
+            value=1000.0,
+            zip_code='911-745',
+        )
+
+        ac.__dict__['noname'] = ac.__dict__.pop('zip_code')
+        self.assertEqual(Corrupt_account_inspector.inspect(ac), False)
 
 if __name__ == '__main__':
     unittest.main()

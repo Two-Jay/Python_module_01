@@ -52,12 +52,9 @@ class Corrupt_account_inspector(Security):
     @classmethod
     def inspect(cls, account: Account) -> bool:
         try:
-            cls.check_attr_type(account)
-            cls.check_attr_len(account)
-            cls.check_attr_name(account)
-            cls.check_mandatory_attr(account)
-            cls.check_attr_value(account)
-            return True
+            checkers = [cls.check_attr_type, cls.check_attr_len, cls.check_attr_name, cls.check_mandatory_attr, cls.check_attr_key_validity]
+            if all(check(account) == True for check in checkers) == True:
+                return True
         except:
             return False
 
@@ -79,9 +76,10 @@ class Corrupt_account_inspector(Security):
     
     @classmethod
     def check_attr_name(cls, account : Account):
-        if any((key.startswith("zip") and key.startswith("addr")) == False for key in cls.__dict__.keys()):
-            raise AccountCorruptionException
-        return True
+        for key in account.__dict__.keys():
+            if key.startswith("zip") == True or key.startswith('addr') == True:
+                return True
+        raise AccountCorruptionException
     
     @classmethod
     def check_mandatory_attr(cls, account : Account):
@@ -90,9 +88,8 @@ class Corrupt_account_inspector(Security):
         return True
     
     @classmethod
-    def check_attr_value(cls, account : Account):
+    def check_attr_key_validity(cls, account : Account):
         for key, value in account.__dict__.items():
-            print(f"{key} - {value}")
             if key.startswith("b") == True:
                 raise AccountCorruptionException
         return True
