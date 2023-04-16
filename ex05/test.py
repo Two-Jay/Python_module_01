@@ -29,13 +29,14 @@ class PositiveAccountStorage():
             zip='911-745',
         ))
 
-        for i in self.lst:
-            print(i.__dict__)
-            print(f"{i.name} - attr_len : {len(i.__dict__)}")
-        print(len(self.lst))
-
     def get(self):
         return self.lst
+    
+    def print(self):
+        for i in self.lst:
+            print(i.__dict__)
+            print(f"{i} - attr_len : {len(i.__dict__)}")
+        print(len(self.lst))
     
 class NegativeAccountStorage():
     def __init__(self):
@@ -89,13 +90,14 @@ class NegativeAccountStorage():
             tag='len is even',
         ))
 
-        for i in self.lst:
-            print(i.__dict__)
-            print(f"{i.name} - attr_len : {len(i.__dict__)}")
-        print(len(self.lst))
-
     def get(self):
         return self.lst
+    
+    def print(self):
+        for i in self.lst:
+            print(i.__dict__)
+            print(f"{i} - attr_len : {len(i.__dict__)}")
+        print(len(self.lst))
 
 class test_utils(unittest.TestCase):
     def test_isEven(self):
@@ -140,8 +142,11 @@ class test_Account(unittest.TestCase, PositiveAccountStorage, NegativeAccountSto
         for account in self.negative_accounts:
             print(account.__dict__)
             self.assertTrue(self.checker.isCorrupted(account))
+            print("Current account is corrupted. Fixing...")
             self.fixer.fix(account)
+            print(f"Fixed account is: {account.__dict__}")
             self.assertFalse(self.checker.isCorrupted(account))
+            
 
 class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
     positive_accounts = PositiveAccountStorage().get()

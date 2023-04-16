@@ -150,10 +150,18 @@ class AttrLengthFixer(AccountCorruptionFixerInterface, AttrLengthCorruptionCondi
 class AttrNamingFixer(AccountCorruptionFixerInterface, AttrNamingCorruptionCondition):
     def fix(self, account : Account) -> bool:
         if self.isCorrupted(account):
+            new_key = []
+            old_key = []
             for key in account.__dict__.keys():
                 if key.startswith('b'):
-                    new_key = key[1:]
-                    account.__dict__[new_key] = account.__dict__.pop(key)
+                    old_key.append(key)
+                    new_key.append(key[1:])
+            for old_key, new_key in zip(old_key, new_key):
+                if old_key.find("zip") != -1:
+                    new_key = "zip"
+                elif old_key.find("addr") != -1:
+                    new_key = "addr"
+                account.__dict__[new_key] = account.__dict__.pop(old_key)
             return True
         return False
     
@@ -161,6 +169,7 @@ class MandatoryAttrFixer(AccountCorruptionFixerInterface, MandatoryAttrCorruptio
     def fix(self, account : Account) -> bool:
         if self.isCorrupted(account):
             account.__dict__['addr'] = "Unknown"
+            account.__dict__['zip'] = "Unknown"
             return True
         return False
 
@@ -187,8 +196,8 @@ class AccountCorruptionInspector():
     conditions = [
         AttrLengthCorruptionCondition(),
         AttrNamingCorruptionCondition(),
+        AttrTypeCorruptionCondition(),
         MandatoryAttrCorruptionCondition(),
-        AttrTypeCorruptionCondition()
     ]
 
     def isCorrupted(self, account : Account) -> bool:
