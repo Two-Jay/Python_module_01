@@ -126,7 +126,7 @@ class AttrTypeCorruptionCondition(AccountCorruptionConditionInterface):
         return any(i == True for i in results)
     
     def isValueCorrupted(self, account : Account) -> bool:
-        return not hasattr(account, 'value') or not (isinstance(account.value, int) or isinstance(account.value, float))
+        return not hasattr(account, 'value') or (type(account.value) is not int and type(account.value) is not float)
     
     def isNameCorrupted(self, account : Account) -> bool:
         return not hasattr(account, 'name') or type(account.name) is not str
