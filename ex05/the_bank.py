@@ -121,6 +121,7 @@ class Balance_inspector(Security):
     def inspect(cls, account: Account, amount : int or float) -> bool:
         return account.isEnough(amount)
 
+
 # * class Account_Fixer
 # ---------------------------------------------------------------------------------
 class Account_Fixer(object):
