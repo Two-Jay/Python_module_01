@@ -175,7 +175,6 @@ class test_Account(unittest.TestCase, PositiveAccountStorage, NegativeAccountSto
                 if expected:
                     self.assertEqual(account.value, old_value - amount)
 
-
 class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
     positive_accounts = PositiveAccountStorage().get()
 

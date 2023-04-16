@@ -259,15 +259,18 @@ class Bank(object):
         # ... Your code  ...
         if not isinstance(origin, str) or not isinstance(dest, str) or not isinstance(amount, float):
             return False
-        origin_account = self.accounts.find_account(origin)
-        dest_account = self.accounts.find_account(dest)
-        if None in [origin_account, dest_account] or \
-            self.corruption_inspector.isCorrupted(origin_account) == True or \
-            self.corruption_inspector.isCorrupted(dest_account) == True or \
-            origin_account.isBalanced(amount) == False:
+        found = {
+            "origin": self.accounts.find_account(origin),
+            "is_origin_corrupted": self.corruption_inspector.isCorrupted(found["origin"]),
+            "dest": self.accounts.find_account(dest),
+            "is_dest_corrupted": self.corruption_inspector.isCorrupted(found["dest"]),
+        }
+        if None in [found["origin"], found["dest"]] or \
+            True in [found["is_origin_corrupted"], found["is_dest_corrupted"]] or \
+            found["origin"].isBalanced(amount) == False:
             return False
-        origin_account.withdraw(amount)
-        dest_account.transfer(amount)
+        found["origin"].widthdraw(amount)
+        found["dest"].transfer(amount)
         return True
 
     def fix_account(self, name : str) -> bool:
