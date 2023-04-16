@@ -1,6 +1,7 @@
 import unittest
-from refactored import *
+from the_bank import *
 import copy
+import random   
 
 class PositiveAccountStorage():
     def __init__(self):
@@ -135,16 +136,44 @@ class test_Account(unittest.TestCase, PositiveAccountStorage, NegativeAccountSto
             self.assertFalse(self.checker.isCorrupted(account))
 
     def test_negative_accounts(self):
-        ngative_accounts = copy.deepcopy(self.negative_accounts)
-        for account in ngative_accounts:
+        negative_accounts = copy.deepcopy(self.negative_accounts)
+        for account in negative_accounts:
             self.assertTrue(self.checker.isCorrupted(account))
 
     def test_fix_negative_accounts(self):
-        ngative_accounts = copy.deepcopy(self.negative_accounts)
-        for account in ngative_accounts:
+        negative_accounts = copy.deepcopy(self.negative_accounts)
+        for account in negative_accounts:
             self.assertTrue(self.checker.isCorrupted(account))
             self.fixer.fix(account)
             self.assertFalse(self.checker.isCorrupted(account))
+
+    def test_transfer(self):
+        positive_accounts = copy.deepcopy(self.positive_accounts)
+        for account in positive_accounts:
+            old_value = account.value
+            account.transfer(1000.0)
+            self.assertEqual(account.value, old_value + 1000.0)
+
+    def test_transfer_negative(self):
+        positive_accounts = copy.deepcopy(self.positive_accounts)
+        for account in positive_accounts:
+            old_value = account.value
+            result = account.transfer(-1000.0)
+            self.assertEqual(account.value, old_value)
+            self.assertFalse(result)
+    
+    def test_randomly_withdraw(self):
+        positive_accounts = copy.deepcopy(self.positive_accounts)
+        batch_size = 10000
+        for _ in range(batch_size):
+            for account in positive_accounts:
+                base = 2000
+                old_value = account.value
+                amount = random.randint(0, base)
+                expected = True if old_value - amount >= 0 else False
+                self.assertEqual(account.withdraw(amount), expected)
+                if expected:
+                    self.assertEqual(account.value, old_value - amount)
 
 
 class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
@@ -163,6 +192,8 @@ class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
             storage.remove_account(account.name)
             self.assertEqual(storage.find_account(account.name), None)
         self.assertEqual(storage.size(), 0)
+
+
 
 if __name__ == '__main__':
     unittest.main()
