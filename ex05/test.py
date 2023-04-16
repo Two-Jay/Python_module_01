@@ -120,7 +120,7 @@ class test_utils(unittest.TestCase):
 
 class test_Account(unittest.TestCase, PositiveAccountStorage, NegativeAccountStorage):
     positive_accounts = PositiveAccountStorage().get()
-    negative_accounts = NegativeAccountStorage().get().copy()
+    negative_accounts = NegativeAccountStorage().get()
     checker = AccountCorruptionInspector()
     fixer = AccountFixer()
 
@@ -135,18 +135,17 @@ class test_Account(unittest.TestCase, PositiveAccountStorage, NegativeAccountSto
             self.assertFalse(self.checker.isCorrupted(account))
 
     def test_negative_accounts(self):
-        for account in self.negative_accounts:
+        ngative_accounts = copy.deepcopy(self.negative_accounts)
+        for account in ngative_accounts:
             self.assertTrue(self.checker.isCorrupted(account))
 
     def test_fix_negative_accounts(self):
-        for account in self.negative_accounts:
-            print(account.__dict__)
+        ngative_accounts = copy.deepcopy(self.negative_accounts)
+        for account in ngative_accounts:
             self.assertTrue(self.checker.isCorrupted(account))
-            print("Current account is corrupted. Fixing...")
             self.fixer.fix(account)
-            print(f"Fixed account is: {account.__dict__}")
             self.assertFalse(self.checker.isCorrupted(account))
-            
+
 
 class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
     positive_accounts = PositiveAccountStorage().get()
