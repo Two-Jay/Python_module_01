@@ -6,10 +6,10 @@ class Gaurd(Enum):
     
     @staticmethod
     def validate(value, expected_type, validation_level = STRICT):
-        if validation_level == validation_level.INHARIANT:
+        if validation_level == Gaurd.INHARIANT:
             if not isinstance(value, expected_type):
                 raise TypeError(f"Expected {expected_type}, got {type(value)}")
-        elif validation_level == validation_level.STRICT:
+        elif validation_level == Gaurd.STRICT:
             if type(value) != expected_type:
                 raise TypeError(f"Expected {expected_type}, got {type(value)}")
         return value
