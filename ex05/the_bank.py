@@ -232,7 +232,7 @@ class Bank(object):
     """The bank"""
     def __init__(self):
         self.accounts = AccountStorage()
-        self.corruption_inspector = AccountCorruptionInspector()
+        self.inspector = AccountCorruptionInspector()
         self.account_fixer = AccountFixer()
 
     def add(self, new_account : Account):
@@ -244,7 +244,7 @@ class Bank(object):
         # test if new_account is an Account() instance and if
         # it can be appended to the attribute accounts
         # ... Your code  ...
-        if not isinstance(new_account, Account) or self.accounts.find_account(new_account.name) is None:
+        if not isinstance(new_account, Account) or self.accounts.find_account(new_account.name) is not None:
             return False
         return self.accounts.create_account(new_account)
 
@@ -259,19 +259,29 @@ class Bank(object):
         # ... Your code  ...
         if not isinstance(origin, str) or not isinstance(dest, str) or not isinstance(amount, float):
             return False
-        found = {
-            "origin": self.accounts.find_account(origin),
-            "is_origin_corrupted": self.corruption_inspector.isCorrupted(found["origin"]),
-            "dest": self.accounts.find_account(dest),
-            "is_dest_corrupted": self.corruption_inspector.isCorrupted(found["dest"]),
-        }
-        if None in [found["origin"], found["dest"]] or \
-            True in [found["is_origin_corrupted"], found["is_dest_corrupted"]] or \
-            found["origin"].isBalanced(amount) == False:
+        origin_account, dest_account = [self.accounts.find_account(origin), self.accounts.find_account(dest)]
+        if None in [origin_account, dest_account]:
             return False
-        found["origin"].widthdraw(amount)
-        found["dest"].transfer(amount)
+        is_origin_corrupted = self.inspector.isCorrupted(origin_account)
+        is_dest_corrupted = self.inspector.isCorrupted(dest_account)
+        if True in [is_origin_corrupted, is_dest_corrupted] or \
+            origin_account.isBalanced(amount) == False:
+            return False
+        origin_account.withdraw(amount)
+        dest_account.transfer(amount)
         return True
+    
+    def find_account(self, name : str) -> Account:
+        """
+            find account associated to name
+            @name:   str(name) of the account
+            @return  Account() if found, None if not found
+        """
+        # ... Your code  ...
+        if not isinstance(name, str):
+            return None
+        return self.accounts.find_account(name)
+
 
     def fix_account(self, name : str) -> bool:
         """

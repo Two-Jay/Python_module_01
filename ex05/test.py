@@ -192,7 +192,53 @@ class test_AccountStorage(unittest.TestCase, PositiveAccountStorage):
             self.assertEqual(storage.find_account(account.name), None)
         self.assertEqual(storage.size(), 0)
 
+class test_subject_cases(unittest.TestCase):
+    def test_case_01(self):
+        bank = Bank()
+        bank.add(Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            ref='1044618427ff2782f0bbece0abd05f31'
+        ))
+        bank.add(Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None
+        ))
 
+        result = bank.transfer('William John', 'Smith Jane', 1000.0)
+        self.assertFalse(result)
+
+    def test_case_02(self):
+        bank = Bank()
+        account_00 = Account(
+            'Smith Jane',
+            zip='911-745',
+            value=1000.0,
+            ref='1044618427ff2782f0bbece0abd05f31'
+        )
+        account_01 = Account(
+            'William John',
+            zip='100-064',
+            value=6460.0,
+            ref='58ba2b9954cd278eda8a84147ca73c87',
+            info=None
+        )
+
+        bank.add(account_00)
+        bank.add(account_01)
+
+        result = bank.transfer('William John', 'Smith Jane', 1000.0)
+        self.assertFalse(result)
+
+        bank.fix_account('William John')
+        bank.fix_account('Smith Jane')
+
+        result = bank.transfer('William John', 'Smith Jane', 1000.0)
+        self.assertTrue(result)
 
 if __name__ == '__main__':
     unittest.main()
